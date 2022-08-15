@@ -1,0 +1,53 @@
+---
+title: "day_6_wrangling_tidyverse"
+author: "Atahualpa Ayala"
+format: html
+editor: visual
+---
+
+```{r, echo=TRUE, message=false}
+library(tidyverse)
+library(here)
+library(janitor)
+
+```
+
+## Read in the WB data files
+
+```{r}
+#en este caso se elimina ".." que hay registrados en algunos campos como si fuera N/A.
+
+wb_indicators <- read_csv(here("data", "wb_indicators.csv"), na = c("..", ""))
+wb_metada <- read_csv(here("data", "wb_indicators.csv"))
+```
+## pivot_longer to get year into a single column
+
+```{r}
+wb_indicators_long <- wb_indicators %>%
+  pivot_longer(cols = `2001 [YR2001]` : `2020 [YR2020]`,
+               names_to = "years",
+               values_to = "indicator_value" )
+```
+## separate to clena up the year column
+```{r}
+wb_clean <- wb_indicators_long |>
+  separate(col = "years", into = c("year", "year_chr"))|>
+  select(-year_chr, - 'Country Code', - 'Series Code') |>
+  mutate(year = as.numeric(year)) |> 
+  drop_na('Series Name')|>
+  pivot_wider(names_from = 'Series Name' ,
+              values_from = indicator_value)
+
+names(wb_clean) <- c("country", "year", "acces_clean_fuels_pp", "access_electricity_pp", "co2_emissions_kt", "fossil_fuel_cons", "level_of_water_stress")
+
+
+wb_subset <- wb_clean |>
+  filter(country %in% c("Afghanistan", "Nicaragua", "Myanmar"))
+
+ggplot (data = wb_subset, aes( x = year, y= co2_emissions_kt)) + 
+          geom_line(aes(color=country)) +
+          facet_wrap(~country)
+        
+```
+## separate to clena up the year column
+
