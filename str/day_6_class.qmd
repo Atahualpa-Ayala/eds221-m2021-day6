@@ -20,6 +20,7 @@ library(janitor)
 wb_indicators <- read_csv(here("data", "wb_indicators.csv"), na = c("..", ""))
 wb_metada <- read_csv(here("data", "wb_indicators.csv"))
 ```
+
 ## pivot_longer to get year into a single column
 
 ```{r}
@@ -28,7 +29,9 @@ wb_indicators_long <- wb_indicators %>%
                names_to = "years",
                values_to = "indicator_value" )
 ```
+
 ## separate to clena up the year column
+
 ```{r}
 wb_clean <- wb_indicators_long |>
   separate(col = "years", into = c("year", "year_chr"))|>
@@ -49,5 +52,104 @@ ggplot (data = wb_subset, aes( x = year, y= co2_emissions_kt)) +
           facet_wrap(~country)
         
 ```
-## separate to clena up the year column
+
+```{r}
+
+ex_20 <- wb_clean |>
+  rename(ffcp = fossil_fuel_cons_pct,
+         ws = water_stress)
+
+```
+
+```{r}
+
+```
+
+```{r}
+ex_21 <- wb_clean |> 
+  renamea(agua_stress = water_stress,
+          the_country = country)
+```
+
+#MUTATE
+
+```{r}
+ex_22 <- wb_clean |>
+  mutate(co2_emissions_t = co2_emissions_kt * 1000)|>
+  relocate(co2_emissions_t, .after = co2_emissions_kt)
+
+```
+
+```{r}
+ex_23 <- wb_clean |>
+  mutate (yay = "YAY")
+```
+```{r}
+ex_24 <- wb_clean |>
+  mutate (year = as.character(year))
+```
+
+```{r}
+ex_25 <- ex_24 |>
+  mutate (year = as.numeric(year))
+```
+
+```{r}
+ex_26 <- wb_clean|>
+  relocate(level_of_water_stress, .after = year)|>
+
+```
+
+```{r}
+ex_27 <- wb_clean 
+```
+## Group_by and summarize
+
+Group_by: creates goupos under the hood baseed on vairbles you spceici
+summarize : apply your functions to Each Group,  and return them as a nice table
+
+```{r}
+ex_28 <- starwars |> 
+  filter(homeworld %in% c("Naboo", "Tatooine")) |>
+  group_by(species) |>
+  summarize(mean_height = mean(heigth, na.rm = TRUE),
+            mean_mass = mean(mass, na.rm = TRUE))
+
+```
+```{r}
+df <- tribble(
+  ~species, ~length, ~number,
+  "lobster", 12, 4,
+  "lobster", 14, 6,
+  "lobster", 15, 2
+  
+)
+
+df_case <- df |> 
+  uncount (number)
+
+```
+
+```{r}
+#coun counts observations
+# combination of grop_by summariza 
+
+starwars |> 
+  count(homeworld, species)
+
+starwars |>
+  group_by(homeworld, species) |>
+  summarize(size = n(),
+            mean_heigth = mean(height, na.rm = TRUE))
+```
+
+```{r}
+x_29 <- wb_clean |>
+  filter(country %in% c("Nicaragua", "Ecuador", "Peru", "Chile"),  year > 2005) |>
+  select(country, year, co2_emissions_kt) |>
+  mutate(co2_emissions_mt = co2_emissions_kt/1000) |>
+  group_by(country) |>
+  summarize(total_co2_mt = sum(co2_emissions_kt,  na.rm = TRUE))
+
+```
 
